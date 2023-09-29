@@ -1,7 +1,6 @@
 # https://discord.gg/FGH
 
-install
-```
+```install
 pip install discord.py
 pip install colorama
 pip install aiohttp
@@ -10,4 +9,4 @@ pip install aiohttp
 click window key type in cmd and hit enter
 then put in those commands 
 
-still not working then install python idiot
+```still not working then install python idiot
