@@ -1,363 +1,517 @@
-import sys #line:1
-import discord #line:2
-import shutil #line:3
-from colorama import init ,Fore #line:4
-import itertools #line:5
-import requests #line:6
-import time #line:7
-import aiohttp #line:8
-import random #line:9
-import asyncio #line:10
-import ctypes #line:11
-import click #line:12
-import os #line:13
-TOKEN_TYPE_BOT =1 #line:15
-TOKEN_TYPE_ACCOUNT =2 #line:16
-def token_type_to_str (OOOOO0OOOO0O00O0O ):#line:18
-    return "Bot"if OOOOO0OOOO0O00O0O ==TOKEN_TYPE_BOT else "Bearer"#line:19
-rainbow_colors =[Fore .LIGHTCYAN_EX ,Fore .LIGHTGREEN_EX ,Fore .LIGHTCYAN_EX ,Fore .LIGHTGREEN_EX ,Fore .LIGHTCYAN_EX ,Fore .LIGHTGREEN_EX ,Fore .LIGHTCYAN_EX ,Fore .LIGHTGREEN_EX ,Fore .LIGHTCYAN_EX ,Fore .LIGHTGREEN_EX ,Fore .LIGHTCYAN_EX ,Fore .LIGHTGREEN_EX ]#line:28
-BOT_TOKEN =''#line:30
-ACCOUNT_TOKEN =''#line:31
-GUILD_ID =''#line:32
-TOKEN_TYPE =None #line:33
-def print_rainbow_title (OO0O00000OOO00O00 ):#line:35
-    init (autoreset =True )#line:36
-    OO0OO0OO0OOO0OOOO =shutil .get_terminal_size ().columns #line:37
-    O000OO0OOO0OO00O0 =(OO0OO0OO0OOO0OOOO -len (OO0O00000OOO00O00 ))//2 #line:38
-    for O00OO0O00O0OOOO00 ,O00OO0O00O000OOOO in zip (itertools .cycle (rainbow_colors ),OO0O00000OOO00O00 ):#line:40
-        OO000OOO0OO00OOO0 =O00OO0O00O0OOOO00 +O00OO0O00O000OOOO #line:41
-        sys .stdout .write (' '*O000OO0OOO0OO00O0 +OO000OOO0OO00OOO0 )#line:42
-        sys .stdout .flush ()#line:43
-def get_channels (OO0OO000OO0O0O0OO ,O0O0000000OO0O0OO ):#line:45
-    O0OO0OOOO0OOO00O0 ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {OO0OO000OO0O0O0OO}',}#line:48
-    O0000O0O000OO00OO =requests .get (f'https://discord.com/api/v10/guilds/{O0O0000000OO0O0OO}/channels',headers =O0OO0OOOO0OOO00O0 )#line:50
-    if O0000O0O000OO00OO .status_code ==200 :#line:52
-        return O0000O0O000OO00OO .json ()#line:53
-    else :#line:54
-        print (f"Failed to fetch channels: {O0000O0O000OO00OO.text}")#line:55
-        return []#line:56
-async def main_bot_message (O000O00O0O00O00O0 ,O00000OO00O0OOOOO ,OOOO00O0000OO0O0O ):#line:58
-    OO0000O0000O0000O ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {O000O00O0O00O00O0}','Content-Type':'application/json',}#line:62
-    O00O00OO00OO0000O ={'content':OOOO00O0000OO0O0O ,}#line:66
-    async with aiohttp .ClientSession ()as OOOO0OOO000OOO0OO :#line:68
-        async with OOOO0OOO000OOO0OO .get (f'https://discord.com/api/v10/guilds/{O00000OO00O0OOOOO}/members',headers =OO0000O0000O0000O )as OO0OOO0000O0O0O00 :#line:69
-            if OO0OOO0000O0O0O00 .status ==200 :#line:70
-                OO0OOO00OO00O0000 =await OO0OOO0000O0O0O00 .json ()#line:71
-                for OOOO000000OO00OOO in OO0OOO00OO00O0000 :#line:72
-                    if 'user'in OOOO000000OO00OOO :#line:73
-                        O0O0OOOO000OOOOO0 =OOOO000000OO00OOO ['user']['id']#line:74
-                        async with OOOO0OOO000OOO0OO .post (f'https://discord.com/api/v10/users/{O0O0OOOO000OOOOO0}/messages',headers =OO0000O0000O0000O ,json =O00O00OO00OO0000O )as OO000000O00O0O00O :#line:75
-                            if OO000000O00O0O00O .status ==200 :#line:76
-                                print (f"Message sent to user {O0O0OOOO000OOOOO0}: {OOOO00O0000OO0O0O}")#line:77
-                            else :#line:78
-                                print (f"Failed to send message to a user D:")#line:79
-            else :#line:80
-                print (f"Failed to fetch members: {await OO0OOO0000O0O0O00.text()}")#line:81
-def chat (O000OOO0O0O0000O0 ,O0000OO0OO0O0OO00 ,OOO0O00OO000OO00O ):#line:83
-    OO000O00OO000000O ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {O000OOO0O0O0000O0}','Content-Type':'application/json',}#line:87
-    OO0OOOO00OOOOOOOO ={'content':OOO0O00OO000OO00O ,}#line:91
-    OO0OOO0OO00OO0O00 =requests .post (f'https://discord.com/api/v10/channels/{O0000OO0OO0O0OO00}/messages',headers =OO000O00OO000000O ,json =OO0OOOO00OOOOOOOO )#line:93
-    if OO0OOO0OO00OO0O00 .status_code ==200 :#line:95
-        print (f"Message sent to a channel: {OOO0O00OO000OO00O}")#line:96
-    else :#line:97
-        print (f"Failed to send message to a channel")#line:98
-def create_channels (O0O0O0O0OOOO0OOO0 ,OO0OOOO0O000OO00O ,O0000OO000OOO0O0O ,OO0000OO00OO0O000 ):#line:100
-    O000O00OOO0O0OOOO ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {O0O0O0O0OOOO0OOO0}','Content-Type':'application/json',}#line:104
-    for OO0O0OOO0O0O0000O in range (OO0000OO00OO0O000 ):#line:106
-        for OOO00O0O0OOOOO0O0 in O0000OO000OOO0O0O :#line:107
-            OO00000O0OOOOOOOO ={'name':OOO00O0O0OOOOO0O0 ,'type':0 ,}#line:111
-            OOO0O0OOO00O0OO00 =requests .post (f'https://discord.com/api/v10/guilds/{OO0OOOO0O000OO00O}/channels',headers =O000O00OOO0O0OOOO ,json =OO00000O0OOOOOOOO )#line:113
-            if OOO0O0OOO00O0OO00 .status_code ==201 :#line:115
-                print (f"Channel created")#line:116
-            else :#line:117
-                print (f"Failed to create channel")#line:118
-def ban_all_members (OO0O0OOO00O00O0O0 ,O0O00OOO000O00O0O ):#line:120
-    O00O0OO0O000OOO00 ={'Authorization':f'Bot {OO0O0OOO00O00O0O0}',}#line:123
-    O0OO00OO00O000OO0 =None #line:125
-    OO0OOOO0OO0O0000O ='Join discord.gg/FGH YOU noobie'#line:126
-    while True :#line:128
-        OOO00OO00O00O0O00 ={'limit':1000 ,'after':O0OO00OO00O000OO0 ,}#line:132
-        O0OO0O0OO0OOOO0OO =requests .get (f'https://discord.com/api/v10/guilds/{O0O00OOO000O00O0O}/members',headers =O00O0OO0O000OOO00 ,params =OOO00OO00O00O0O00 )#line:134
-        if O0OO0O0OO0OOOO0OO .status_code ==200 :#line:136
-            OOO000O0O000O0O00 =O0OO0O0OO0OOOO0OO .json ()#line:137
-            if not OOO000O0O000O0O00 :#line:139
-                break #line:140
-            for OO0OOO000OO00000O in OOO000O0O000O0O00 :#line:142
-                if 'user'in OO0OOO000OO00000O :#line:143
-                    O00O0O00O0000O0OO =OO0OOO000OO00000O ['user']['id']#line:144
-                    O0O00OOOOOO0OOO00 ={'reason':OO0OOOO0OO0O0000O }#line:147
-                    O0OO0O0OO0OOOO0OO =requests .put (f'https://discord.com/api/v10/guilds/{O0O00OOO000O00O0O}/bans/{O00O0O00O0000O0OO}',headers =O00O0OO0O000OOO00 ,json =O0O00OOOOOO0OOO00 )#line:148
-                    if O0OO0O0OO0OOOO0OO .status_code ==204 :#line:149
-                        print (f"Banned user: {O00O0O00O0000O0OO} for reason: {OO0OOOO0OO0O0000O}")#line:150
-                    else :#line:151
-                        print (f"Failed to ban user {O00O0O00O0000O0OO}: {O0OO0O0OO0OOOO0OO.text}")#line:152
-            O0OO00OO00O000OO0 =OOO000O0O000O0O00 [-1 ]['user']['id']#line:154
-        else :#line:156
-            print (f"Failed to fetch members: {O0OO0O0OO0OOOO0OO.text}")#line:157
-            break #line:158
-def get_friends (OOO0O00O0OO00000O ):#line:160
-    O00OOO000OO00OOO0 ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {OOO0O00O0OO00000O}',}#line:163
-    OO0O00000O000O00O =requests .get ('https://discord.com/api/v10/users/@me/relationships',headers =O00OOO000OO00OOO0 )#line:165
-    if OO0O00000O000O00O .status_code ==200 :#line:167
-        O00O0O0000O000O00 =OO0O00000O000O00O .json ()#line:168
-        return [OOOOO0O0O0OOO0OOO for OOOOO0O0O0OOO0OOO in O00O0O0000O000O00 if OOOOO0O0O0OOO0OOO ['type']==1 ]#line:169
-    else :#line:170
-        print (f"Failed to fetch friends: {OO0O00000O000O00O.text}")#line:171
-        return []#line:172
-def dm_friend (OOOOOO00000OO0000 ,O0O0O00O000000OOO ,OO00O000000O0OO0O ):#line:174
-    O0O00OOOO0000O0OO ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {OOOOOO00000OO0000}','Content-Type':'application/json',}#line:178
-    OO00OOOO0OOOO0OOO ={'content':OO00O000000O0OO0O ,}#line:182
-    OO0O0OOO0O0OO0O0O =requests .post (f'https://discord.com/api/v10/users/{O0O0O00O000000OOO}/messages',headers =O0O00OOOO0000O0OO ,json =OO00OOOO0OOOO0OOO )#line:184
-    if OO0O0OOO0O0OO0O0O .status_code ==200 :#line:185
-        print (f"Message sent to friend {O0O0O00O000000OOO}: {OO00O000000O0OO0O}")#line:186
-    else :#line:187
-        print (f"Failed to send message to a friend")#line:188
-def delete_all_channels (OOO00OO0O00O0OOO0 ,OO0O0O0OOO0O000O0 ):#line:190
-    OO0000O00000OOO00 ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {OOO00OO0O00O0OOO0}',}#line:193
-    OOO00O0O0OOO00000 =get_channels (OOO00OO0O00O0OOO0 ,OO0O0O0OOO0O000O0 )#line:195
-    for O0OOO0OO00000OO0O in OOO00O0O0OOO00000 :#line:197
-        O000O0OO00O0OO0O0 =O0OOO0OO00000OO0O ['id']#line:198
-        O000OO00O0OOOO0O0 =requests .delete (f'https://discord.com/api/v10/channels/{O000O0OO00O0OO0O0}',headers =OO0000O00000OOO00 )#line:199
-        if O000OO00O0OOOO0O0 .status_code ==204 :#line:201
-            print (f"Deleted a channel")#line:202
-        else :#line:203
-            print (f"Failed to delete an channel")#line:204
-async def send_message_to_webhook (O00O00OO0O0OOOO0O ,O0OO0O0O000O00OOO ,O0O0OO00O0O0OOOO0 ,O00O0000000OOOOOO ):#line:206
-    async with O00O00OO0O0OOOO0O .post (O0OO0O0O000O00OOO ,json ={"content":f"{O0O0OO00O0O0OOOO0} - Webhook {O00O0000000OOOOOO}"})as OO00O0O0OO0000O0O :#line:207
-        if OO00O0O0OO0000O0O .status ==204 :#line:208
-            print (f"Message sent to webhook {O00O0000000OOOOOO}: {O0O0OO00O0O0OOOO0}")#line:209
-        else :#line:210
-            print (f"error with webhook ")#line:211
-async def chat_with_webhooks (O0O00OO0OOO0O00O0 ,OO000O00000OOOO0O ):#line:213
-    while True :#line:214
-        if O0O00OO0OOO0O00O0 :#line:215
-            async with aiohttp .ClientSession ()as OO00OO0O000O00O00 :#line:216
-                OO000O00OOO00O0O0 =[]#line:217
-                for OOOO0O0000O0OOOO0 ,O0O0OO0O0O00O000O in enumerate (O0O00OO0OOO0O00O0 ,start =1 ):#line:219
-                    OO0OOO0OO000OOO00 =send_message_to_webhook (OO00OO0O000O00O00 ,O0O0OO0O0O00O000O ,OO000O00000OOOO0O ,OOOO0O0000O0OOOO0 )#line:220
-                    OO000O00OOO00O0O0 .append (OO0OOO0OO000OOO00 )#line:221
-                await asyncio .gather (*OO000O00OOO00O0O0 )#line:223
-        else :#line:224
-            print ("No webhooks were made now chatting without webhooks.")#line:225
-        await asyncio .sleep (0 )#line:228
-def mass_dm_friends ():#line:230
-    O0O0O0O00000000OO ='mode 85,20'#line:231
-    os .system (O0O0O0O00000000OO )#line:232
-    ctypes .windll .kernel32 .SetConsoleTitleW ("FGH")#line:233
-    click .clear ()#line:234
-    OOOOO0O00OOOO0O0O =discord .Client ()#line:235
-    global auth #line:237
-    auth =input ('Enter your account token: ')#line:238
-    try :#line:240
-        ctypes .windll .kernel32 .SetConsoleTitleW (f"{os.getlogin()} | Token: {auth}")#line:241
-    except :#line:242
-        ctypes .windll .kernel32 .SetConsoleTitleW (f"FGH's Client | Token: {auth}")#line:243
-    OOOO00OOOO0O00O0O =input ('FGH@message: ')#line:245
-    click .clear ()#line:246
-    @OOOOO0O00OOOO0O0O .event #line:248
-    async def OOO00OOO0OO000O00 ():#line:249
-        print (f'Logged in as {OOOOO0O00OOOO0O0O.user.name}')#line:250
-        for OO00O0O0O000O0O00 in OOOOO0O00OOOO0O0O .user .friends :#line:251
-            try :#line:252
-                await OO00O0O0O000O0O00 .send (OOOO00OOOO0O00O0O )#line:253
-            except :#line:254
-                pass #line:255
-    OOOOO0O00OOOO0O0O .run (auth ,bot =False )#line:257
-def create_webhooks_for_channels (O000OO00OO00OOOOO ,O0OO0OOO0OO00O00O ):#line:260
-    OOOOO0000000OOO00 ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {O000OO00OO00OOOOO}','Content-Type':'application/json',}#line:264
-    OO0O00O000000000O =requests .get (f'https://discord.com/api/v10/guilds/{O0OO0OOO0OO00O00O}/channels',headers =OOOOO0000000OOO00 )#line:266
-    if OO0O00O000000000O .status_code ==200 :#line:268
-        OO0O00OOO000OO0O0 =OO0O00O000000000O .json ()#line:269
-        OO000000OO000OOO0 =[]#line:270
-        for O0OOO000O0OO00OOO in OO0O00OOO000OO0O0 :#line:272
-            if O0OOO000O0OO00OOO ['type']==0 :#line:273
-                OO000O0OO00O00OOO =get_existing_webhooks (O000OO00OO00OOOOO ,O0OOO000O0OO00OOO ['id'])#line:274
-                if OO000O0OO00O00OOO :#line:276
-                    O00O0OOOO00OO0O0O =OO000O0OO00O00OOO [0 ]#line:277
-                    print (f"existing webhook found now changing to a channel")#line:278
-                else :#line:279
-                    O0OO0OOO0000O00OO ={'name':'Webhook',}#line:282
-                    OO0000000O0O0O0OO =requests .post (f'https://discord.com/api/v10/channels/{O0OOO000O0OO00OOO["id"]}/webhooks',headers =OOOOO0000000OOO00 ,json =O0OO0OOO0000O00OO )#line:283
-                    if OO0000000O0O0O0OO .status_code ==200 :#line:285
-                        O00O0000O0OO00000 =OO0000000O0O0O0OO .json ()#line:286
-                        O00O0OOOO00OO0O0O =O00O0000O0OO00000 ['url']#line:287
-                        print (f"Webhook made for a channel")#line:288
-                    else :#line:289
-                        print (f"Failed to create webhook for a channel")#line:290
-                OO000000OO000OOO0 .append (O00O0OOOO00OO0O0O )#line:292
-                time .sleep (0.2 )#line:294
-        return OO000000OO000OOO0 #line:295
-    else :#line:296
-        print (f"Failed to get a channel")#line:297
-        return []#line:298
-def get_existing_webhooks (OO0OO00OO000O0OOO ,OO0000O0O0OO0OOOO ):#line:300
-    OO0OOOOO00OO0O00O ={'Authorization':f'{token_type_to_str(TOKEN_TYPE)} {OO0OO00OO000O0OOO}',}#line:303
-    O00OOO00O00O00O0O =requests .get (f'https://discord.com/api/v10/channels/{OO0000O0O0OO0OOOO}/webhooks',headers =OO0OOOOO00OO0O00O )#line:305
-    if O00OOO00O00O00O0O .status_code ==200 :#line:307
-        O0O0OO00O00O00000 =O00OOO00O00O00O0O .json ()#line:308
-        return [OO00OO00O0OOOO000 ['url']for OO00OO00O0OOOO000 in O0O0OO00O00O00000 ]#line:309
-    else :#line:310
-        print (f"Failed Webhook")#line:311
-        return []#line:312
-def main ():#line:314
-    global BOT_TOKEN ,ACCOUNT_TOKEN ,GUILD_ID ,TOKEN_TYPE #line:315
-    O00OOOOOO0OO00O00 ="""
+import sys
+import discord
+import shutil
+from colorama import init, Fore
+import itertools
+import requests
+import time
+import aiohttp
+import random
+import asyncio
+import ctypes
+import click
+import os
+
+# Randomly generate token strings, for bot and account tokens.
+# Also set the guild and token type variables.
+TOKEN_TYPE_BOT = 1
+TOKEN_TYPE_ACCOUNT = 2
+
+def token_type_to_str(token_type):
+    return "Bot" if token_type == TOKEN_TYPE_BOT else "Bearer"
+
+rainbow_colors = [
+    Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX,
+    Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX,
+    Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX,
+    Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX,
+    Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX,
+    Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX
+]
+
+BOT_TOKEN = ''
+ACCOUNT_TOKEN = ''
+GUILD_ID = ''
+TOKEN_TYPE = None
+
+def print_rainbow_title(title):
+    init(autoreset=True)
+    term_width = shutil.get_terminal_size().columns
+    leading_spaces = (term_width - len(title)) // 2
+
+    for color, char in zip(itertools.cycle(rainbow_colors), title):
+        colored_char = color + char
+        sys.stdout.write(' ' * leading_spaces + colored_char)
+        sys.stdout.flush()
+
+def get_channels(token, guild_id):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+    }
+
+    response = requests.get(f'https://discord.com/api/v10/guilds/{guild_id}/channels', headers=headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Failed to fetch channels: {response.text}")
+        return []
+
+async def main_bot_message(token, guild_id, message):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+        'Content-Type': 'application/json',
+    }
+
+    data = {
+        'content': message,
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://discord.com/api/v10/guilds/{guild_id}/members', headers=headers) as response:
+            if response.status == 200:
+                members = await response.json()
+                for member in members:
+                    if 'user' in member:
+                        user_id = member['user']['id']
+                        async with session.post(f'https://discord.com/api/v10/users/{user_id}/messages', headers=headers, json=data) as message_response:
+                            if message_response.status == 200:
+                                print(f"Message sent to user {user_id}: {message}")
+                            else:
+                                print(f"Failed to send message to a user D:")
+            else:
+                print(f"Failed to fetch members: {await response.text()}")
+
+def chat(token, channel_id, message):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+        'Content-Type': 'application/json',
+    }
+
+    data = {
+        'content': message,
+    }
+
+    response = requests.post(f'https://discord.com/api/v10/channels/{channel_id}/messages', headers=headers, json=data)
+
+    if response.status_code == 200:
+        print(f"Message sent to a channel: {message}")
+    else:
+        print(f"Failed to send message to a channel")
+
+def create_channels(token, guild_id, channel_names, amount):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+        'Content-Type': 'application/json',
+    }
+
+    for i in range(amount):
+        for channel_name in channel_names:
+            data = {
+                'name': channel_name,
+                'type': 0,
+            }
+
+            response = requests.post(f'https://discord.com/api/v10/guilds/{guild_id}/channels', headers=headers, json=data)
+
+            if response.status_code == 201:
+                print(f"Channel created")
+            else:
+                print(f"Failed to create channel")
+
+def ban_all_members(token, guild_id):
+    headers = {
+        'Authorization': f'Bot {token}',
+    }
+
+    cursor = None
+    default_ban_reason = 'Join discord.gg/FGH YOU noobie'  # Default ban reason
+
+    while True:
+        params = {
+            'limit': 1000,
+            'after': cursor,
+        }
+
+        response = requests.get(f'https://discord.com/api/v10/guilds/{guild_id}/members', headers=headers, params=params)
+
+        if response.status_code == 200:
+            members = response.json()
+
+            if not members:
+                break
+
+            for member in members:
+                if 'user' in member:
+                    user_id = member['user']['id']
+                    data = {
+                        'reason': default_ban_reason  # Use the default ban reason
+                    }
+                    response = requests.put(f'https://discord.com/api/v10/guilds/{guild_id}/bans/{user_id}', headers=headers, json=data)
+                    if response.status_code == 204:
+                        print(f"Banned user: {user_id} for reason: {default_ban_reason}")
+                    else:
+                        print(f"Failed to ban user {user_id}: {response.text}")
+
+            cursor = members[-1]['user']['id']
+
+        else:
+            print(f"Failed to fetch members: {response.text}")
+            break
+
+def get_friends(token):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+    }
+
+    response = requests.get('https://discord.com/api/v10/users/@me/relationships', headers=headers)
+
+    if response.status_code == 200:
+        friends = response.json()
+        return [friend for friend in friends if friend['type'] == 1]
+    else:
+        print(f"Failed to fetch friends: {response.text}")
+        return []
+
+def dm_friend(token, friend_id, message):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+        'Content-Type': 'application/json',
+    }
+
+    data = {
+        'content': message,
+    }
+
+    response = requests.post(f'https://discord.com/api/v10/users/{friend_id}/messages', headers=headers, json=data)
+    if response.status_code == 200:
+        print(f"Message sent to friend {friend_id}: {message}")
+    else:
+        print(f"Failed to send message to a friend")
+
+def delete_all_channels(token, guild_id):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+    }
+
+    channels = get_channels(token, guild_id)
+
+    for channel in channels:
+        channel_id = channel['id']
+        response = requests.delete(f'https://discord.com/api/v10/channels/{channel_id}', headers=headers)
+
+        if response.status_code == 204:
+            print(f"Deleted a channel")
+        else:
+            print(f"Failed to delete an channel")
+
+async def send_message_to_webhook(session, webhook_url, message, webhook_number):
+    async with session.post(webhook_url, json={"content": f"{message} - Webhook {webhook_number}"}) as response:
+        if response.status == 204:
+            print(f"Message sent to webhook {webhook_number}: {message}")
+        else:
+            print(f"error with webhook ")
+
+async def chat_with_webhooks(webhooks, message):
+    while True:
+        if webhooks:
+            async with aiohttp.ClientSession() as session:
+                tasks = []
+
+                for index, webhook in enumerate(webhooks, start=1):
+                    task = send_message_to_webhook(session, webhook, message, index)
+                    tasks.append(task)
+
+                await asyncio.gather(*tasks)
+        else:
+            print("No webhooks were made now chatting without webhooks.")
+
+
+        await asyncio.sleep(0)  
+
+def mass_dm_friends():
+    windowSize = 'mode 85,20'
+    os.system(windowSize)
+    ctypes.windll.kernel32.SetConsoleTitleW("FGH")
+    click.clear()
+    client = discord.Client()
+
+    global auth
+    auth = input('Enter your account token: ')  # Use an account token here
+
+    try:
+        ctypes.windll.kernel32.SetConsoleTitleW(f"{os.getlogin()} | Token: {auth}")
+    except:
+        ctypes.windll.kernel32.SetConsoleTitleW(f"FGH's Client | Token: {auth}")
+
+    message = input('FGH@message: ')
+    click.clear()
+
+    @client.event
+    async def on_ready():
+        print(f'Logged in as {client.user.name}')
+        for user in client.user.friends:
+            try:
+                await user.send(message)
+            except:
+                pass
+
+    client.run(auth, bot=False)
+
+
+def create_webhooks_for_channels(token, guild_id):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+        'Content-Type': 'application/json',
+    }
+
+    response = requests.get(f'https://discord.com/api/v10/guilds/{guild_id}/channels', headers=headers)
+
+    if response.status_code == 200:
+        channels = response.json()
+        webhooks = []
+
+        for channel in channels:
+            if channel['type'] == 0:
+                existing_webhooks = get_existing_webhooks(token, channel['id'])
+
+                if existing_webhooks:
+                    webhook_url = existing_webhooks[0]
+                    print(f"existing webhook found now changing to a channel")
+                else:
+                    webhook_data = {
+                        'name': 'Webhook',
+                    }
+                    webhook_response = requests.post(f'https://discord.com/api/v10/channels/{channel["id"]}/webhooks', headers=headers, json=webhook_data)
+
+                    if webhook_response.status_code == 200:
+                        webhook = webhook_response.json()
+                        webhook_url = webhook['url']
+                        print(f"Webhook made for a channel")
+                    else:
+                        print(f"Failed to create webhook for a channel")
+
+                webhooks.append(webhook_url)
+
+                time.sleep(0.2)
+        return webhooks
+    else:
+        print(f"Failed to get a channel")
+        return []
+
+def get_existing_webhooks(token, channel_id):
+    headers = {
+        'Authorization': f'{token_type_to_str(TOKEN_TYPE)} {token}',
+    }
+
+    response = requests.get(f'https://discord.com/api/v10/channels/{channel_id}/webhooks', headers=headers)
+
+    if response.status_code == 200:
+        webhooks = response.json()
+        return [webhook['url'] for webhook in webhooks]
+    else:
+        print(f"Failed Webhook")
+        return []
+
+def main():
+    global BOT_TOKEN, ACCOUNT_TOKEN, GUILD_ID, TOKEN_TYPE  
+
+    title = """
     ███████╗░░░░██████╗░░░░██╗░░██╗
     ██╔════╝░░░██╔════╝░░░░██║░░██║
     █████╗░░░░░██║░░██╗░░░░███████║
     ██╔══╝░░░░░██║░░╚██╗░░░██╔══██║
     ██║░░░░░██╗╚██████╔╝██╗██║░░██║
     ╚═╝░░░░░╚═╝░╚═════╝░╚═╝╚═╝░░╚═╝ don't skid pwease :3
-    """#line:324
-    print_rainbow_title (O00OOOOOO0OO00O00 )#line:326
-    while not TOKEN_TYPE :#line:328
-        print ("\nSelect the token type:")#line:329
-        print ("[1] Bot Token (Discord API)")#line:330
-        print ("[2] Account Token (Your own Discord account, will update soon.)")#line:331
-        O00O00O00OOOO0O0O =input ("\nEnter the option (1/2): ")#line:333
-        if O00O00O00OOOO0O0O =="1":#line:335
-            TOKEN_TYPE =TOKEN_TYPE_BOT #line:336
-        elif O00O00O00OOOO0O0O =="2":#line:337
-            TOKEN_TYPE =TOKEN_TYPE_ACCOUNT #line:338
-        else :#line:339
-            print ("Invalid option selected.")#line:340
-    if TOKEN_TYPE ==TOKEN_TYPE_BOT :#line:342
-        while True :#line:343
-            print ("\nBot Options:")#line:344
-            print ("[1] Mass Message (BEST ONE) extra note cooldown 2 mins")#line:345
-            print ("[2] Create Channels")#line:346
-            print ("[3] Ban everyone")#line:347
-            print ("[4] Dm whole server")#line:348
-            print ("[5] Delete All Channels")#line:349
-            print ("[6] Quit")#line:350
-            OOOO000OO0O00OOOO =input ("\nSelect an option (1/2/3/4/5/6): ")#line:352
-            if OOOO000OO0O00OOOO =="1":#line:354
-                while not BOT_TOKEN :#line:355
-                    BOT_TOKEN =input ("Enter your bot token: ")#line:356
-                while not GUILD_ID :#line:358
-                    GUILD_ID =input ("Enter the server (guild) ID: ")#line:359
-                OOO00O0000O0OOO0O =input ("Enable webhooks? (Y/N): ").strip ().lower ()#line:361
-                O00OOOOOOOO0O0O0O =OOO00O0000O0OOO0O =="y"#line:362
-                OOOO0O0O0O0OOOOOO =input ("Message: ")#line:364
-                if OOOO0O0O0O0OOOOOO :#line:365
-                    if O00OOOOOOOO0O0O0O :#line:366
-                        OO0000O000OO0O00O =create_webhooks_for_channels (BOT_TOKEN ,GUILD_ID )#line:367
-                        if OO0000O000OO0O00O :#line:368
-                            asyncio .run (chat_with_webhooks (OO0000O000OO0O00O ,OOOO0O0O0O0OOOOOO ))#line:369
-                        else :#line:370
-                            print ("No webhooks were created chatting without webhooks.")#line:371
-                    else :#line:372
-                        try :#line:373
-                            while True :#line:374
-                                O0OOO0OOOOO0OOOOO =get_channels (BOT_TOKEN ,GUILD_ID )#line:375
-                                for O00O0O0O000O00O0O in O0OOO0OOOOO0OOOOO :#line:376
-                                    if O00O0O0O000O00O0O ['type']==0 :#line:377
-                                        chat (BOT_TOKEN ,O00O0O0O000O00O0O ['id'],OOOO0O0O0O0OOOOOO )#line:378
-                                time .sleep (1 )#line:379
-                        except KeyboardInterrupt :#line:380
-                            print ("\nChat stopped.")#line:381
-                else :#line:382
-                    print ("enter a chat message.")#line:383
-            elif OOOO000OO0O00OOOO =="2":#line:385
-                while not BOT_TOKEN :#line:386
-                    BOT_TOKEN =input ("bot token: ")#line:387
-                while not GUILD_ID :#line:389
-                    GUILD_ID =input ("Enter the server (guild) ID: ")#line:390
-                OO00OO000O0OOOOO0 =input ("Enter the channel names seperate by comma: ").split (',')#line:392
-                OOO00OO0OO0000000 =int (input ("amout of channels: "))#line:393
-                if OO00OO000O0OOOOO0 and OOO00OO0OO0000000 >0 :#line:395
-                    create_channels (BOT_TOKEN ,GUILD_ID ,OO00OO000O0OOOOO0 ,OOO00OO0OO0000000 )#line:396
-                else :#line:397
-                    print ("enter a valid string stupid no namer.")#line:398
-            elif OOOO000OO0O00OOOO =="3":#line:400
-                while not BOT_TOKEN :#line:401
-                    BOT_TOKEN =input ("bot token: ")#line:402
-                while not GUILD_ID :#line:404
-                    GUILD_ID =input ("server (guild) ID: ")#line:405
-                OO0OOO00O00000O00 =input ("Are you sure that this is the right server? (Y/N): ").strip ().lower ()#line:407
-                if OO0OOO00O00000O00 =="y":#line:408
-                    ban_all_members (BOT_TOKEN ,GUILD_ID )#line:409
-                else :#line:410
-                    print ("Banning canceled.")#line:411
-            elif OOOO000OO0O00OOOO =="4":#line:413
-                while not BOT_TOKEN :#line:414
-                    BOT_TOKEN =input ("Enter your bot token: ")#line:415
-                while not GUILD_ID :#line:417
-                    GUILD_ID =input ("Enter the server (guild) ID: ")#line:418
-                OOOO0O0O0O0OOOOOO =input ("custom message: ")#line:420
-                if OOOO0O0O0O0OOOOOO :#line:421
-                    try :#line:422
-                        O00O000OO0O0OOO00 =discord .Intents .default ()#line:423
-                        O00O000OO0O0OOO00 .typing =True #line:424
-                        O00O000OO0O0OOO00 .presences =True #line:425
-                        O00O000OO0O0OOO00 .members =True #line:426
-                        O000O000O00OO000O =discord .Client (intents =O00O000OO0O0OOO00 )#line:428
-                        @O000O000O00OO000O .event #line:430
-                        async def OOO0OOOO0O0OOOOOO ():#line:431
-                            print (f'Logged in as {O000O000O00OO000O.user.name}')#line:432
-                            try :#line:433
-                                OOOOO00O000O00OO0 =O000O000O00OO000O .get_guild (int (GUILD_ID ))#line:434
-                                if OOOOO00O000O00OO0 :#line:435
-                                    print (f'Found guild: {OOOOO00O000O00OO0.name} (ID: {OOOOO00O000O00OO0.id})')#line:436
-                                    for _OOO0OO0O0O00O0O0O in range (5 ):#line:438
-                                        O0000O0O00O000O00 =[]#line:439
-                                        for O0O0O00OOO0OO000O in OOOOO00O000O00OO0 .members :#line:440
-                                            if O0O0O00OOO0OO000O .id !=O000O000O00OO000O .user .id :#line:441
-                                                try :#line:442
-                                                    print (f'Sending message to > {O0O0O00OOO0OO000O.name}')#line:443
-                                                    O0000O0O00O000O00 .append (O0O0O00OOO0OO000O .send (OOOO0O0O0O0OOOOOO ))#line:444
-                                                except discord .Forbidden :#line:445
-                                                    print (f'Failed to send message to {O0O0O00OOO0OO000O.name} (DMs may be disabled for the user or your bot is rate limited)')#line:446
-                                                except Exception as O0OOO000O0OO0O00O :#line:447
-                                                    print (f'Error sending message to {O0O0O00OOO0OO000O.name}#{O0O0O00OOO0OO000O.discriminator}: {O0OOO000O0OO0O00O}')#line:448
-                                        await asyncio .gather (*O0000O0O00O000O00 )#line:449
-                                        await asyncio .sleep (6 )#line:450
-                                    await O000O000O00OO000O .close ()#line:451
-                                else :#line:452
-                                    print (f'Guild ID {GUILD_ID} not found')#line:453
-                            except Exception as O0OOO000O0OO0O00O :#line:454
-                                print (f'Error: {O0OOO000O0OO0O00O}')#line:455
-                        @O000O000O00OO000O .event #line:458
-                        async def OOOOO0O0000O0OOOO ():#line:459
-                            print ("Bot disconnected.")#line:460
-                        O000O000O00OO000O .run (BOT_TOKEN )#line:462
-                    except KeyboardInterrupt :#line:463
-                        print ("\nSending messages stopped.")#line:464
-                else :#line:465
-                    print ("enter a message to send.")#line:466
-            elif OOOO000OO0O00OOOO =="5":#line:469
-                while not BOT_TOKEN :#line:470
-                    BOT_TOKEN =input ("bot token: ")#line:471
-                while not GUILD_ID :#line:473
-                    GUILD_ID =input ("Enter server (guild) ID: ")#line:474
-                OO0OOO00O00000O00 =input ("Sure this is the right server? (Y/N): ").strip ().lower ()#line:476
-                if OO0OOO00O00000O00 =="y":#line:477
-                    delete_all_channels (BOT_TOKEN ,GUILD_ID )#line:478
-                else :#line:479
-                    print ("Channel deletion off.")#line:480
-            elif OOOO000OO0O00OOOO =="6":#line:482
-                print ("fuck you")#line:483
-                break #line:484
-            else :#line:486
-                print ("Invalid")#line:487
-    elif TOKEN_TYPE ==TOKEN_TYPE_ACCOUNT :#line:489
-        while True :#line:490
-            print ("\nAccount Options:")#line:491
-            print ("[1] Mass DM Friends")#line:492
-            print ("[2] Quit")#line:493
-            OOOO000OO0O00OOOO =input ("\nSelect an option (1/2): ")#line:495
-            if OOOO000OO0O00OOOO =="1":#line:497
-                while not ACCOUNT_TOKEN :#line:498
-                    ACCOUNT_TOKEN =input ("Enter your account token: ")#line:499
-                OOOO0O0O0O0OOOOOO =input ("Enter message: ")#line:501
-                if OOOO0O0O0O0OOOOOO :#line:502
-                    mass_dm_friends (ACCOUNT_TOKEN ,OOOO0O0O0O0OOOOOO )#line:503
-                else :#line:504
-                    print ("enter a message to send.")#line:505
-            elif OOOO000OO0O00OOOO =="2":#line:507
-                print ("Goodbye")#line:508
-                break #line:509
-            else :#line:511
-                print ("Invalid option")#line:512
-if __name__ =="__main__":#line:514
-    main ()
+    """
+
+    print_rainbow_title(title)
+
+    while not TOKEN_TYPE:
+        print("\nSelect the token type:")
+        print("[1] Bot Token (Discord API)")
+        print("[2] Account Token (Your own Discord account, will update soon.)")
+
+        token_option = input("\nEnter the option (1/2): ")
+
+        if token_option == "1":
+            TOKEN_TYPE = TOKEN_TYPE_BOT
+        elif token_option == "2":
+            TOKEN_TYPE = TOKEN_TYPE_ACCOUNT
+        else:
+            print("Invalid option selected.")
+
+    if TOKEN_TYPE == TOKEN_TYPE_BOT:
+        while True:
+            print("\nBot Options:")
+            print("[1] Mass Message (BEST ONE) extra note cooldown 2 mins")
+            print("[2] Create Channels")
+            print("[3] Ban everyone")
+            print("[4] Dm whole server")
+            print("[5] Delete All Channels")
+            print("[6] Quit")
+
+            option = input("\nSelect an option (1/2/3/4/5/6): ")
+
+            if option == "1":
+                while not BOT_TOKEN:
+                    BOT_TOKEN = input("Enter your bot token: ")
+
+                while not GUILD_ID:
+                    GUILD_ID = input("Enter the server (guild) ID: ")
+
+                use_webhooks_input = input("Enable webhooks? (Y/N): ").strip().lower()
+                use_webhooks = use_webhooks_input == "y"
+
+                message = input("Message: ")
+                if message:
+                    if use_webhooks:
+                        webhooks = create_webhooks_for_channels(BOT_TOKEN, GUILD_ID)
+                        if webhooks:
+                            asyncio.run(chat_with_webhooks(webhooks, message))
+                        else:
+                            print("No webhooks were created chatting without webhooks.")
+                    else:
+                        try:
+                            while True:
+                                channels = get_channels(BOT_TOKEN, GUILD_ID)
+                                for channel in channels:
+                                    if channel['type'] == 0:  
+                                        chat(BOT_TOKEN, channel['id'], message)
+                                time.sleep(1)  
+                        except KeyboardInterrupt:
+                            print("\nChat stopped.")
+                else:
+                    print("enter a chat message.")
+
+            elif option == "2":
+                while not BOT_TOKEN:
+                    BOT_TOKEN = input("bot token: ")
+
+                while not GUILD_ID:
+                    GUILD_ID = input("Enter the server (guild) ID: ")
+
+                channel_names = input("Enter the channel names seperate by comma: ").split(',')
+                amount = int(input("amout of channels: "))
+
+                if channel_names and amount > 0:
+                    create_channels(BOT_TOKEN, GUILD_ID, channel_names, amount)
+                else:
+                    print("enter a valid string stupid no namer.")
+
+            elif option == "3":
+                while not BOT_TOKEN:
+                    BOT_TOKEN = input("bot token: ")
+
+                while not GUILD_ID:
+                    GUILD_ID = input("server (guild) ID: ")
+
+                confirm = input("Are you sure that this is the right server? (Y/N): ").strip().lower()
+                if confirm == "y":
+                    ban_all_members(BOT_TOKEN, GUILD_ID)
+                else:
+                    print("Banning canceled.")
+
+            elif option == "4":
+                while not BOT_TOKEN:
+                    BOT_TOKEN = input("Enter your bot token: ")
+
+                while not GUILD_ID:
+                    GUILD_ID = input("Enter the server (guild) ID: ")
+
+                message = input("custom message: ")
+                if message:
+                    try:
+                        intents = discord.Intents.default()
+                        intents.typing = True
+                        intents.presences = True
+                        intents.members = True
+
+                        client = discord.Client(intents=intents)
+
+                        @client.event
+                        async def on_ready():
+                            print(f'Logged in as {client.user.name}')
+                            try:
+                                guild = client.get_guild(int(GUILD_ID))
+                                if guild:
+                                    print(f'Found guild: {guild.name} (ID: {guild.id})')
+
+                                    for _ in range(5): 
+                                        send_tasks = []
+                                        for member in guild.members:
+                                            if member.id != client.user.id:
+                                                try:
+                                                    print(f'Sending message to > {member.name}')
+                                                    send_tasks.append(member.send(message))
+                                                except discord.Forbidden:
+                                                    print(f'Failed to send message to {member.name} (DMs may be disabled for the user or your bot is rate limited)')
+                                                except Exception as e:
+                                                    print(f'Error sending message to {member.name}#{member.discriminator}: {e}')
+                                        await asyncio.gather(*send_tasks)
+                                        await asyncio.sleep(6) 
+                                    await client.close()
+                                else:
+                                    print(f'Guild ID {GUILD_ID} not found')
+                            except Exception as e:
+                                print(f'Error: {e}')
+
+
+                        @client.event
+                        async def on_disconnect():
+                            print("Bot disconnected.")
+
+                        client.run(BOT_TOKEN)
+                    except KeyboardInterrupt:
+                        print("\nSending messages stopped.")
+                else:
+                    print("enter a message to send.")
+
+
+            elif option == "5":
+                while not BOT_TOKEN:
+                    BOT_TOKEN = input("bot token: ")
+
+                while not GUILD_ID:
+                    GUILD_ID = input("Enter server (guild) ID: ")
+
+                confirm = input("Sure this is the right server? (Y/N): ").strip().lower()
+                if confirm == "y":
+                    delete_all_channels(BOT_TOKEN, GUILD_ID)
+                else:
+                    print("Channel deletion off.")
+
+            elif option == "6":
+                print("fuck you")
+                break
+
+            else:
+                print("Invalid")
+
+    elif TOKEN_TYPE == TOKEN_TYPE_ACCOUNT:
+        while True:
+            print("\nAccount Options:")
+            print("[1] Mass DM Friends")
+            print("[2] Quit")
+
+            option = input("\nSelect an option (1/2): ")
+
+            if option == "1":
+                while not ACCOUNT_TOKEN:
+                    ACCOUNT_TOKEN = input("Enter your account token: ")
+
+                message = input("Enter message: ")
+                if message:
+                    mass_dm_friends(ACCOUNT_TOKEN, message)
+                else:
+                    print("enter a message to send.")
+
+            elif option == "2":
+                print("Goodbye")
+                break
+
+            else:
+                print("Invalid option")
+
+if __name__ == "__main__":
+    main()
